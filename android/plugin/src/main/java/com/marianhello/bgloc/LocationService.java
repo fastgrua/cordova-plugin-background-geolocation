@@ -239,7 +239,8 @@ public class LocationService extends Service {
 
         if (config.getStartForeground()) {
             // Build a Notification required for running service in foreground.
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            String channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel("fg_background_location", "Fast Grúa Posicionamiento") : "";
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId);
             builder.setContentTitle(config.getNotificationTitle());
             builder.setContentText(config.getNotificationText());
             if (config.getSmallNotificationIcon() != null) {
@@ -271,6 +272,16 @@ public class LocationService extends Service {
 
         //We want this service to continue running until it is explicitly stopped
         return START_STICKY;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String createNotificationChannel(String id, String name) {
+        NotificationChannel notificationChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_NONE);
+        notificationChannel.setLightColor(Color.BLUE);
+        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(notificationChannel);
+        return id;
     }
 
     protected int getAppResource(String name, String type) {
